@@ -1,0 +1,537 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>The Family Business</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap">
+<style>
+/* Layout: full-screen paged deck. Each "act" is one viewport-filling panel;
+   scroll / swipe / arrows cross-fade to the next, contents stagger in. Dense
+   panels scroll internally, then hand off. Palette is semantic, from the PH
+   flag: blue = the civic ideal, red = concentrated family power, gold = people. */
+:root{
+  --paper:#f3efe6; --surface:#fbf8f1; --ink:#171a1f; --ink-soft:#565c68; --line:#ddd6c6;
+  --power:#c2152e; --power-deep:#8d0f21; --power-wash:#f4dcdf;
+  --reform:#0b4f9e; --reform-deep:#083a74; --reform-wash:#dce7f3;
+  --gold:#b98400; --gold-bright:#f2c230;
+  --maxw:40rem; --wide:60rem;
+  --fdisp:'Archivo',system-ui,sans-serif;
+  --fread:'Newsreader',Georgia,'Times New Roman',serif;
+}
+/* Light is the default theme; dark applies only when the viewer toggles it. */
+:root[data-theme="dark"]{
+  --paper:#13151b; --surface:#1b1e26; --ink:#ece6d9; --ink-soft:#9aa0ac; --line:#2b303b;
+  --power:#f0576d; --power-deep:#f0576d; --power-wash:#331319;
+  --reform:#5fa0ec; --reform-deep:#5fa0ec; --reform-wash:#122234;
+  --gold:#f2c230; --gold-bright:#f2c230; color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--fread);line-height:1.6;
+  font-size:1.0625rem;-webkit-font-smoothing:antialiased;overflow:hidden}
+h1,h2,h3,h4,.eyebrow,.stat,.cap,.ui,.chip,.yr,.rk{font-family:var(--fdisp)}
+
+/* ---------- deck shell ---------- */
+#deck{position:relative}
+.js #deck{position:fixed;inset:0;overflow:hidden;background:var(--paper)}
+
+/* base (no-JS) = a normal stacked page, so it degrades gracefully */
+.slide{padding-block:clamp(3rem,8vw,5rem);background:var(--paper)}
+.slide-inner{width:100%;max-width:var(--maxw);margin-inline:auto;
+  padding-left:max(18px,env(safe-area-inset-left,0px));
+  padding-right:max(18px,env(safe-area-inset-right,0px))}
+.slide-inner.wide{max-width:var(--wide)}
+
+/* JS paged mode */
+.js .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:safe center;
+  overflow-y:auto;overflow-x:hidden;opacity:0;visibility:hidden;pointer-events:none;
+  padding:calc(env(safe-area-inset-top,0px) + 2.2rem) 0 calc(env(safe-area-inset-bottom,0px) + 2.2rem);
+  transition:opacity .5s ease,visibility .5s;-webkit-overflow-scrolling:touch}
+.js .slide.active{opacity:1;visibility:visible;pointer-events:auto;z-index:2}
+
+/* per-panel full-bleed backgrounds */
+.slide.s-hero,.slide.s-close{background:#0c0e13}
+.slide.s-dark{background:#13161c}
+.slide.s-blue{background:var(--reform-wash)}
+.slide.s-surface{background:var(--surface)}
+
+/* stagger-in */
+.js .slide .anim{opacity:0;transform:translateY(22px);
+  transition:opacity .6s ease,transform .6s cubic-bezier(.2,.72,.2,1);
+  transition-delay:calc(var(--i,0) * 75ms)}
+.js .slide.show .anim{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .js .slide .anim{opacity:1;transform:none;transition:none}
+  .js .slide{transition:opacity .2s linear}
+}
+
+/* ---------- typography / blocks ---------- */
+.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;font-weight:700;
+  color:var(--ink-soft);display:flex;align-items:center;gap:.6rem;margin:0 0 1.1rem}
+.eyebrow::before{content:"";width:1.6rem;height:2px;background:currentColor}
+.eyebrow.red{color:var(--power-deep)} .eyebrow.blue{color:var(--reform-deep)}
+h2{font-weight:900;font-size:clamp(1.85rem,6vw,2.9rem);line-height:1.03;letter-spacing:-.02em;
+  text-wrap:balance;margin:0 0 1.1rem}
+h3{font-weight:800;font-size:1.25rem;letter-spacing:-.01em;margin:1.8rem 0 .5rem;text-wrap:balance}
+p{margin:0 0 1rem;max-width:62ch}
+strong{font-weight:600}
+em{font-style:italic}
+.dim{color:var(--ink-soft)}
+
+.pull{font-family:var(--fread);font-style:italic;font-size:clamp(1.3rem,4.6vw,1.95rem);line-height:1.28;
+  font-weight:500;margin:1.4rem 0 .4rem;padding-left:1.1rem;border-left:3px solid var(--power);text-wrap:balance}
+.pull.blue{border-color:var(--reform)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:1.6rem 0}
+.tile{background:var(--surface);padding:1.25rem 1.15rem}
+.tile .stat{font-weight:900;font-size:clamp(2rem,8vw,2.8rem);line-height:1;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;color:var(--power)}
+.tile.blue .stat{color:var(--reform)}
+.tile .cap{font-size:.8rem;line-height:1.3;color:var(--ink-soft);margin-top:.5rem}
+
+/* fat vs thin */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.6rem 0}
+.duo .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.2rem}
+.duo .card h4{margin:0 0 .15rem;font-size:1rem;font-weight:800}
+.duo .card .sub{font-family:var(--fdisp);font-size:.75rem;color:var(--ink-soft);margin:0 0 .9rem}
+.duo svg{width:100%;height:auto;display:block}
+.duo p{font-size:.92rem;margin:.85rem 0 0}
+.dot{fill:var(--line)} .dot.on{fill:var(--power)} .duo .card.thin .dot.on{fill:var(--gold)}
+.seat-lbl{font-family:var(--fdisp);font-size:11px;font-weight:600}
+
+/* causation */
+.cause{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.5rem 1.3rem;margin:1.6rem 0}
+.cause svg{width:100%;max-width:33rem;height:auto;display:block;margin:.3rem auto .9rem}
+.cause .ctag{font-family:var(--fdisp);font-size:.8rem;color:var(--ink-soft);text-align:center;margin:0;max-width:44ch;margin-inline:auto}
+.cnode{fill:var(--surface);stroke:var(--ink-soft)}
+.cnode-t{fill:var(--ink);font-family:var(--fdisp);font-weight:700;font-size:13px}
+.carrow-strong{stroke:var(--power);fill:var(--power)} .carrow-weak{stroke:var(--ink-soft);fill:var(--ink-soft)}
+
+/* reforms */
+.reforms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem;margin:1.4rem 0}
+.reform{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--reform);
+  border-radius:10px;padding:1.05rem 1.1rem}
+.reform .rk{text-transform:uppercase;letter-spacing:.1em;font-size:.66rem;font-weight:700;
+  color:var(--reform-deep);margin:0 0 .3rem}
+.reform b{font-family:var(--fdisp);font-weight:800;display:block;font-size:.98rem;margin-bottom:.25rem}
+.reform p{font-size:.86rem;margin:0;color:var(--ink-soft)}
+
+/* sglg chips */
+.areas{display:flex;flex-wrap:wrap;gap:.45rem;margin:1.2rem 0 .3rem}
+.chip{font-size:.76rem;font-weight:600;padding:.38rem .66rem;border-radius:999px;
+  background:var(--surface);border:1px solid var(--line);color:var(--ink-soft)}
+.chip.core{background:var(--reform-wash);border-color:transparent;color:var(--reform-deep)}
+
+/* reflection */
+.reflect p{font-size:1.08rem}
+.caveat{font-family:var(--fdisp);font-size:.82rem;line-height:1.5;background:var(--power-wash);
+  border-radius:10px;padding:1rem 1.1rem;margin:1.3rem 0;color:var(--ink)}
+.caveat b{color:var(--power-deep)}
+
+/* ---------- dark panels ---------- */
+.s-hero,.s-dark,.s-close{color:#ece6d9}
+.s-hero h2,.s-dark h2,.s-close h2{color:#fff}
+.s-dark p{color:#ddd8cb}
+.s-dark .eyebrow,.s-hero .eyebrow,.s-close .eyebrow{color:var(--gold-bright)}
+
+/* hero */
+.s-hero .kicker{text-transform:uppercase;letter-spacing:.22em;font-size:.72rem;font-weight:700;
+  color:var(--gold-bright);margin:0 0 1.5rem;font-family:var(--fdisp)}
+.s-hero h1{font-family:var(--fdisp);font-weight:900;letter-spacing:-.03em;line-height:.95;
+  font-size:clamp(2.8rem,13vw,6rem);margin:0;color:#fff;text-wrap:balance}
+.s-hero h1 .strike{position:relative;color:#c9c3b4;white-space:nowrap}
+.s-hero h1 .strike::after{content:"";position:absolute;left:-.02em;right:-.02em;top:52%;height:.09em;
+  background:var(--power);transform:scaleX(0);transform-origin:left;transition:transform .7s .45s ease}
+.s-hero.show h1 .strike::after{transform:scaleX(1)}
+.s-hero h1 .become{color:var(--gold-bright)}
+.s-hero .dek{font-family:var(--fread);font-size:clamp(1.1rem,3.4vw,1.45rem);line-height:1.5;
+  max-width:34ch;margin:1.8rem 0 0;color:#e7e2d6}
+.s-hero .byline{font-family:var(--fdisp);font-size:.8rem;letter-spacing:.04em;color:#a7a294;
+  margin-top:2.2rem;border-top:1px solid #33373f;padding-top:1rem;display:flex;flex-wrap:wrap;gap:.3rem 1.1rem}
+.s-hero .byline b{color:#fff;font-weight:600}
+
+/* timeline (reckoning) */
+.timeline{list-style:none;margin:1.6rem 0 0;padding:0;position:relative}
+.timeline::before{content:"";position:absolute;left:.52rem;top:.4rem;bottom:.4rem;width:2px;background:#3a3f49}
+.timeline li{position:relative;padding:0 0 1.6rem 2.1rem}
+.timeline li::before{content:"";position:absolute;left:0;top:.15rem;width:1.1rem;height:1.1rem;border-radius:50%;
+  background:#13161c;border:2px solid #6b7180}
+.timeline li.hit::before{background:var(--power);border-color:var(--power)}
+.timeline li.win::before{background:var(--gold-bright);border-color:var(--gold-bright)}
+.timeline .yr{font-weight:800;font-size:.88rem;letter-spacing:.02em;color:var(--gold-bright)}
+.timeline li.hit .yr{color:var(--power)}
+.timeline .ev{font-family:var(--fread);margin:.1rem 0 0;color:#e7e2d6;max-width:52ch;font-size:.98rem}
+.bigcount{display:flex;flex-wrap:wrap;gap:1.2rem 2.4rem;margin:1.8rem 0 0;border-top:1px solid #33373f;padding-top:1.6rem}
+.bigcount .n{font-family:var(--fdisp);font-weight:900;font-size:clamp(2.2rem,9vw,3.2rem);line-height:1;
+  font-variant-numeric:tabular-nums;color:var(--power)}
+.bigcount .n.zero{color:var(--gold-bright)}
+.bigcount .l{font-family:var(--fdisp);font-size:.74rem;color:#a7a294;margin-top:.35rem;line-height:1.3}
+
+/* close */
+.s-close{text-align:center}
+.s-close .fin{font-family:var(--fread);font-style:italic;font-size:clamp(1.3rem,5vw,1.9rem);line-height:1.35;
+  color:#e7e2d6;text-wrap:balance}
+.s-close .mark{font-family:var(--fdisp);font-weight:900;color:var(--gold-bright);font-size:1.05rem;
+  letter-spacing:.02em;margin-top:1.8rem}
+
+/* sources */
+.src h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-soft);margin:0 0 .9rem}
+.src ul{list-style:none;margin:0;padding:0;display:grid;gap:.5rem;font-family:var(--fdisp);font-size:.78rem;line-height:1.4}
+.src li{color:var(--ink-soft)}
+.src .note{font-family:var(--fread);font-style:italic;font-size:.9rem;color:var(--ink-soft);margin-top:1.4rem;max-width:56ch}
+
+/* ---------- fixed UI ---------- */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--paper);z-index:20}
+#bar{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);height:3px;z-index:21;background:transparent}
+#bar > i{display:block;height:100%;width:0;background:var(--power);transition:width .5s ease}
+
+#dots{position:fixed;z-index:14;right:max(9px,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:.5rem}
+#dots button{width:9px;height:9px;border-radius:50%;border:0;padding:0;cursor:pointer;background:var(--ink-soft);
+  opacity:.3;transition:opacity .25s,height .25s,background .25s;box-shadow:0 0 0 1px rgba(128,128,128,.25)}
+#dots button.on{opacity:1;height:22px;border-radius:5px;background:var(--power);box-shadow:none}
+
+#hint{position:fixed;z-index:14;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);text-align:center;
+  font-family:var(--fdisp);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);
+  pointer-events:none;transition:opacity .4s;mix-blend-mode:difference}
+#hint.hidden{opacity:0}
+#hint span{display:inline-block;animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+@media (prefers-reduced-motion:reduce){#hint span{animation:none}}
+
+#theme{position:fixed;z-index:15;right:max(13px,env(safe-area-inset-right,0px));
+  top:calc(env(safe-area-inset-top,0px) + 11px);font-family:var(--fdisp);font-size:.7rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;background:var(--surface);color:var(--ink-soft);
+  border:1px solid var(--line);border-radius:999px;padding:.38rem .66rem;cursor:pointer;opacity:.85}
+#theme:hover{opacity:1}
+:focus-visible{outline:2px solid var(--reform);outline-offset:3px;border-radius:2px}
+
+@media (max-width:560px){
+  .duo,.reforms{grid-template-columns:1fr}
+  #dots{gap:.4rem} #dots button{width:7px;height:7px} #dots button.on{height:18px}
+}
+</style>
+
+<div id="bar"><i></i></div>
+<nav id="dots" aria-label="Section navigation"></nav>
+<p id="hint" class="ui">Scroll <span>&darr;</span></p>
+<button id="theme" class="ui" type="button" aria-label="Toggle light or dark theme">Theme</button>
+
+<main id="deck">
+
+  <section class="slide s-hero" data-key="hero">
+    <div class="slide-inner">
+      <p class="kicker anim">SocSc 14 &middot; Governance &middot; Individual Reflection</p>
+      <h1 class="anim">The <span class="strike">Family</span> <span class="become">People's</span> Business</h1>
+      <p class="dek anim">The 1987 Constitution banned political dynasties; but for 37 years, no one ever thought to disambiguate that term.</p>
+      <div class="byline anim">
+        <span><b>Jacob Tan</b></span><span>4 BS Computer Science</span><span>236122</span><span>October 20, 2026</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-key="ideal">
+    <div class="slide-inner">
+      <p class="eyebrow blue anim">The standard</p>
+      <h2 class="anim">What governance is <em>supposed</em> to be</h2>
+      <p class="anim">Having a set of rules is different from whether citizens can actually use them. The frame the course leans on names four pillars, and every one assumes power is <strong>answerable</strong> and <strong>shared</strong>.</p>
+      <div class="stats anim">
+        <div class="tile blue"><div class="stat">01</div><div class="cap">Transparency; information is open and reachable</div></div>
+        <div class="tile blue"><div class="stat">02</div><div class="cap">Accountability; officials answer for their decisions</div></div>
+        <div class="tile blue"><div class="stat">03</div><div class="cap">Predictability; laws apply consistently to everyone</div></div>
+        <div class="tile blue"><div class="stat">04</div><div class="cap">Participation; people shape decisions that affect them</div></div>
+      </div>
+      <p class="anim">Add checks and balances and <strong>decentralization</strong>- moving power "away from the center" to widen the door to participation. Hold onto this thought!</p>
+    </div>
+  </section>
+
+  <section class="slide" data-key="capture">
+    <div class="slide-inner">
+      <p class="eyebrow red anim">The problem</p>
+      <h2 class="anim">Then a few families walked through the door and locked it</h2>
+      <p class="anim">A political dynasty is a family that keeps elected power across its members- either in sequence, or all at once. This happens all over the world, in varying degrees. But in the Philippines, it is not a fringe edge case- it is one of its most normalized systems.</p>
+      <div class="stats anim">
+        <div class="tile"><div class="stat count" data-to="70" data-prefix="&gt;" data-suffix="%">&gt;70%</div><div class="cap">of Congress belongs to a political dynasty</div></div>
+        <div class="tile"><div class="stat count" data-to="80" data-prefix="&gt;" data-suffix="%">&gt;80%</div><div class="cap">of provinces controlled by families by 2025</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-key="fatthin">
+    <div class="slide-inner">
+      <p class="eyebrow red anim">The distinction</p>
+      <h2 class="anim">Not all dynasties look the same</h2>
+      <p class="anim">Ateneo and AIM economist Ronald Mendoza separates <strong>thin</strong> from <strong>fat</strong> dynasties- and it is the fat ones that more often correlate with real damage.</p>
+      <div class="duo anim">
+        <div class="card thin">
+          <h4>Thin dynasty</h4>
+          <p class="sub">One seat, passed down over time</p>
+          <svg viewBox="0 0 220 64" role="img" aria-label="One office filled across three periods in sequence">
+            <text x="4" y="12" class="seat-lbl" fill="var(--ink-soft)">then &rarr; now</text>
+            <circle class="dot on" cx="34" cy="40" r="12"/><circle class="dot" cx="80" cy="40" r="12"/><circle class="dot" cx="126" cy="40" r="12"/>
+            <text x="150" y="44" class="seat-lbl" fill="var(--ink-soft)">1 office</text>
+          </svg>
+          <p>A single post across generations. Surprisingly common and not automatically harmful.</p>
+        </div>
+        <div class="card fat">
+          <h4>Fat dynasty <span style="color:var(--power)">"sabay-sabay"</span></h4>
+          <p class="sub">Many relatives, many seats, simultaneously</p>
+          <svg viewBox="0 0 220 64" role="img" aria-label="Five offices filled simultaneously by one family">
+            <text x="4" y="12" class="seat-lbl" fill="var(--ink-soft)">same election</text>
+            <circle class="dot on" cx="26" cy="40" r="12"/><circle class="dot on" cx="60" cy="40" r="12"/><circle class="dot on" cx="94" cy="40" r="12"/><circle class="dot on" cx="128" cy="40" r="12"/><circle class="dot on" cx="162" cy="40" r="12"/>
+            <text x="184" y="44" class="seat-lbl" fill="var(--power)">5 offices</text>
+          </svg>
+          <p>Mayor, governor, congressman- all cousins. Tied to deeper systemic poverty.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-key="cause">
+    <div class="slide-inner">
+      <p class="eyebrow red anim">The Chicken and The egg</p>
+      <h2 class="anim">Do dynasties cause poverty, or does poverty breed dynasties?</h2>
+      <div class="cause anim">
+        <svg viewBox="0 0 360 150" role="img" aria-label="Strong arrow from poverty to dynasties, weak arrow back">
+          <rect class="cnode" x="14" y="55" width="110" height="40" rx="8"/><text class="cnode-t" x="69" y="80" text-anchor="middle">Poverty</text>
+          <rect class="cnode" x="236" y="55" width="110" height="40" rx="8"/><text class="cnode-t" x="291" y="80" text-anchor="middle">Dynasties</text>
+          <path class="carrow-strong" d="M130 62 H210" fill="none" stroke-width="4"/><path class="carrow-strong" d="M224 62 L210 55 L210 69 Z"/>
+          <text x="177" y="46" text-anchor="middle" class="seat-lbl" fill="var(--power)">strong evidence</text>
+          <path class="carrow-weak" d="M230 88 H150" fill="none" stroke-width="1.6" stroke-dasharray="5 5"/><path class="carrow-weak" d="M136 88 L150 81 L150 95 Z"/>
+          <text x="183" y="110" text-anchor="middle" class="seat-lbl" fill="var(--ink-soft)">weak evidence</text>
+        </svg>
+        <p class="ctag">Strong evidence that poverty entrenches dynasties; weaker that dynasties worsen it- though a clear worsening effect shows up in provinces outside Luzon.</p>
+      </div>
+      <p class="anim">So dynasties are less analogous to a disease than a <em>symptom</em> that worsens the sickness of bad governance. They corrode the pillars directly: checks and balances cannot work inside a fat dynasty- you cannot hold your own brother accountable- and dynasties <strong>thrive under decentralization</strong>, capturing the very local power that was meant to be spread around. Gerrymandering, like the attempt to split Palawan into three, can even <em>multiply</em> seats for the same clans.</p>
+    </div>
+  </section>
+
+  <section class="slide s-dark" data-key="creed">
+    <div class="slide-inner">
+      <p class="pull anim">A dynasty is not bad because of its last name. A leader is effective or not on their own merit, bloodline be damned.</p>
+      <p class="anim">The true danger of a dynasty is its <em>toxic</em> realization. Its purest form is a country where the ballot is merely a formality- the Kims in North Korea, power as literal inheritance. We may be relieved that this is far from the reality of the Philippines, yet we have our own quieter machinery. This is the reason the sentiment to "just vote them out" rarely ever works.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-key="machinery">
+    <div class="slide-inner">
+      <p class="eyebrow red anim">The reason the cycle holds</p>
+      <h2 class="anim">Utang na loob, at the ballot box</h2>
+      <p class="anim">My own hunch was that people keep backing the same dynasties even when the evidence says those dynasties are failing them- out of ignorance, a sense of belonging, or a vote that got bought. And this hunch has a name in the readings.</p>
+      <p class="anim">Mendoza describes an exchange: in poor areas with few real opportunities, people trade their <strong>political capital</strong>- their vote, their loyalty- for immediate help. And this can take on the form of a bag of rice for the upcoming week, or a job to secure a semi-decent livelihood for the future. The dynasty then <em>collects</em> on that debt of gratitude come election time. Poverty and dynasty feed on each other and grow, and the votes that are meant to shape our nation are turned into little thank-you notes.</p>
+      <p class="pull anim">The people most failed by entrenched power are the ones most bound to keep electing it.</p>
+    </div>
+  </section>
+
+  <section class="slide s-dark" data-key="reckoning">
+    <div class="slide-inner">
+      <p class="eyebrow anim">The reckoning</p>
+      <h2 class="anim">A ban with no teeth- until this year</h2>
+      <p class="anim">Article II, Section 26 says the State "shall&hellip; prohibit political dynasties." The catch is the next six words: <em>as may be defined by law</em>. And the Congress meant to write that law was 70% dynasties.</p>
+      <ul class="timeline anim">
+        <li><div class="yr">1987</div><p class="ev">The Constitution bans dynasties- but outsources the definition to Congress.</p></li>
+        <li class="hit"><div class="yr">1987&ndash;2024</div><p class="ev">More than 100 anti-dynasty bills are filed. Every single one of those bills dies. The Supreme Court keeps calling the ban "not self-executing."</p></li>
+        <li class="win"><div class="yr">Aug 26, 2026</div><p class="ev">In the <em>Kapatiran</em> case, a unanimous Court reverses course: Section 26 is a <strong>mandatory duty</strong>. Congress must act "with utmost urgency."</p></li>
+      </ul>
+      <div class="bigcount anim">
+        <div><div class="n count" data-to="37">37</div><div class="l">years of waiting</div></div>
+        <div><div class="n count" data-to="100" data-suffix="+">100+</div><div class="l">bills filed</div></div>
+        <div><div class="n zero count" data-to="0">0</div><div class="l">became law</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-key="pasig">
+    <div class="slide-inner">
+      <p class="eyebrow blue anim">The case study</p>
+      <h2 class="anim">So what happens when a dynasty actually falls?</h2>
+      <p class="anim">You do not need a hypothetical. Look at Pasig- the city I am proud to be from.</p>
+      <p class="anim">For <strong>27 years</strong>, from 1992, Pasig was a textbook example of a fat dynasty. The mayoralty passed from Bobby Eusebio to his wife Maribel and back, while his brother Richard continued to sit in Congress. The seats rotated among the family- sabay-sabay, by the book.</p>
+      <p class="anim">In 2019 a 29-year-old first-term councilor named Vico Sotto ran against all of it as an independent, and won. He had studied political science at the Ateneo and taken his master's at the Ateneo School of Government- and he campaigned on one word: <b>participation.</b></p>
+    </div>
+  </section>
+
+  <section class="slide s-blue" data-key="reforms">
+    <div class="slide-inner wide">
+      <p class="eyebrow blue anim">The Present</p>
+      <h2 class="anim">Compared against the module's checklist:</h2>
+      <div class="reforms anim">
+        <div class="reform"><p class="rk">Transparency</p><b>Pasig Transparency Ordinance</b><p>The first local freedom-of-information law in Metro Manila. Residents can demand the city's records.</p></div>
+        <div class="reform"><p class="rk">Participation</p><b>Ugnayan sa Pasig</b><p>A channel to flag bad service and feed back on projects- citizens as partners, not beneficiaries.</p></div>
+        <div class="reform"><p class="rk">Social protection</p><b>Digitalized health</b><p>Universal health care rollout; the SGLG incentive was spent on IT to make health services reachable.</p></div>
+        <div class="reform"><p class="rk">Accountability</p><b>Anti-"epal" governance</b><p>Data-driven, name-off-the-tarpaulin politics. Sotto backs an anti-dynasty law strict enough to bar himself.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-key="seal">
+    <div class="slide-inner">
+      <p class="eyebrow blue anim">The receipt</p>
+      <h2 class="anim">And the seal to prove it</h2>
+      <p class="anim">In December 2024, Pasig under Sotto's administration was one of 14 Metro Manila cities- of 714 nationwide- to earn the DILG's <strong>Seal of Good Local Governance</strong>.
+      <div class="areas anim">
+        <span class="chip core">Financial admin</span><span class="chip core">Disaster prep</span><span class="chip core">Social protection</span>
+        <span class="chip">Health</span><span class="chip">Education</span><span class="chip">Business-friendly</span>
+        <span class="chip">Peace &amp; order</span><span class="chip">Environment</span><span class="chip">Tourism &amp; culture</span><span class="chip">Youth</span>
+      </div>
+      <p class="dim anim" style="font-size:.85rem;font-family:var(--fdisp)">Three core areas (highlighted) are still pass-or-fail gates. The bar rose, and Pasig still cleared it.</p>
+    </div>
+  </section>
+
+  <section class="slide s-surface reflect" data-key="verdict">
+    <div class="slide-inner">
+      <p class="eyebrow anim" style="color:var(--power-deep)">My verdict</p>
+      <h2 class="anim">Bloodline is not the variable</h2>
+      <p class="anim">My position is not that dynasties are evil; grossly oversimplified, a leader is effective or ineffective on their own merit, whatever may be their last name.
+      <p class="anim"><strong>Competent dynastic officials exist, and so do incompetent ones.</strong></p>
+      <p class="anim">And these incompetent ones seem uniquely evil- the family that treats a city as an inheritance and runs it into the ground while still winning every election- with the reason it keeps winning being its most unsettling aspect: people will continue backing the dynasties they already back, regardless of the evidence.</p>
+        
+      <p class="anim">Although Pasig eventually chose differently, the uncomfortable truth is that so many places, year after year, may never.</p>
+    </div>
+  </section>
+
+  <section class="slide s-surface reflect" data-key="future">
+    <div class="slide-inner">
+      <p class="eyebrow anim" style="color:var(--power-deep)">My critique</p>
+      <h2 class="anim">Pasig still has to prove itself</h2>
+      <p class="anim">I will not pretend the seal makes Pasig perfect. I continue to worry about my city in two ways: first, the reform is built on one person- Sotto is on his final term, and governance that lives or dies with a single reformer has not really been <em>institutionalized</em> yet. Second, the SGLG is a floor, not a ceiling: with 714 winners in one year, it means "passed the standard," not "nothing left to fix." And it could very well be that the floor, the standard is just set too low.</p>
+      <p class="anim">The potholes, the floods, the daily friction are all still there to argue about. Good governance is not a badge you win every three years or so, it is the day-to-day work of staying answerable.</p>
+    </div>
+  </section>
+
+  <section class="slide s-close" data-key="close">
+    <div class="slide-inner">
+      <p class="fin anim">Democracy and governance are at their strongest when they make room for pluralism and participation- when citizens stop waiting to be governed and start insisting on being heard.</p>
+      <p class="mark anim">&mdash; and that is the whole point of civil society.</p>
+    </div>
+  </section>
+
+  <section class="slide src" data-key="sources">
+    <div class="slide-inner wide">
+      <h3 class="anim">Sources &amp; notes</h3>
+      <ul>
+        <li class="anim">Mendoza, Beja, Venida &amp; Yap, "Political Dynasties and Poverty: Evidence from the Philippines" (2013; Oxford Development Studies, 2016).</li>
+        <li class="anim">Mendoza, "Dynasties Thrive under Decentralization"; PIDS / BusinessWorld on fat vs. thin dynasties.</li>
+        <li class="anim">Supreme Court En Banc, Kapatiran et al. (ruling dated 26 Aug 2026), ordering an anti-dynasty law.</li>
+        <li class="anim">DILG &amp; DILG-NCR, 2024 Seal of Good Local Governance awardees (714 LGUs; 14 in NCR; ten areas).</li>
+        <li class="anim">Inquirer, "Finding Vico"; Manila Bulletin on Ugnayan sa Pasig &amp; the Transparency Ordinance; SocSc 14 module.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var root=document.documentElement; root.classList.add('js');
+
+  /* theme toggle */
+  var btn=document.getElementById('theme');
+  try{var t=localStorage.getItem('fb-theme'); if(t) root.setAttribute('data-theme',t);}catch(e){}
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var next=cur?(cur==='dark'?'light':'dark'):'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('fb-theme',next)}catch(e){}
+  });
+
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var tokens=slides.map(function(s){return s.dataset.key;});
+  var n=slides.length, cur=0, lock=false;
+
+  /* dots */
+  var dotsWrap=document.getElementById('dots');
+  slides.forEach(function(s,k){
+    var b=document.createElement('button'); b.type='button';
+    b.setAttribute('aria-label','Go to '+(s.dataset.key||('section '+(k+1))));
+    b.addEventListener('click',function(){ if(!lock&&k!==cur){lock=true;activate(k);release();} });
+    dotsWrap.appendChild(b);
+  });
+  var dots=[].slice.call(dotsWrap.children);
+  var bar=document.querySelector('#bar > i');
+  var hint=document.getElementById('hint');
+
+  /* stagger index */
+  slides.forEach(function(s){
+    [].slice.call(s.querySelectorAll('.anim')).forEach(function(el,i){ el.style.setProperty('--i',i); });
+  });
+
+  function runCount(el){
+    if(el.dataset.done) return; el.dataset.done='1';
+    var to=parseFloat(el.dataset.to), pre=el.dataset.prefix||'', suf=el.dataset.suffix||'';
+    if(reduce){el.textContent=pre+to+suf;return;}
+    var start=performance.now(), dur=1000;
+    (function step(now){
+      var k=Math.min(1,(now-start)/dur), e=1-Math.pow(1-k,3);
+      el.textContent=pre+Math.round(to*e)+suf;
+      if(k<1) requestAnimationFrame(step);
+    })(performance.now());
+  }
+
+  function activate(i){
+    i=Math.max(0,Math.min(n-1,i));
+    var prev=cur; cur=i;
+    slides.forEach(function(s,k){
+      var on=(k===i);
+      s.classList.toggle('active',on);
+      s.setAttribute('aria-hidden',on?'false':'true');
+      try{s.inert=!on;}catch(e){}
+      if(on){ s.scrollTop=0; } else { s.classList.remove('show'); }
+    });
+    var el=slides[i];
+    requestAnimationFrame(function(){
+      el.classList.add('show');
+      [].slice.call(el.querySelectorAll('.count')).forEach(runCount);
+    });
+    dots.forEach(function(d,k){ d.classList.toggle('on',k===i); });
+    bar.style.width=(n>1?(i/(n-1))*100:100)+'%';
+    if(i>0) hint.classList.add('hidden'); else hint.classList.remove('hidden');
+    try{history.replaceState(null,'','#'+tokens[i]);}catch(e){}
+  }
+  function release(){ setTimeout(function(){lock=false;},620); }
+  function go(d){ if(lock) return; var t=cur+d; if(t<0||t>=n) return; lock=true; activate(t); release(); }
+
+  function edges(){
+    var s=slides[cur];
+    var can=s.scrollHeight>s.clientHeight+2;
+    return {can:can, top:s.scrollTop<=0, bottom:s.scrollTop+s.clientHeight>=s.scrollHeight-1};
+  }
+
+  window.addEventListener('wheel',function(e){
+    if(Math.abs(e.deltaY)<=6) return;
+    var g=edges();
+    if(e.deltaY>0){ if(g.can&&!g.bottom) return; e.preventDefault(); go(1); }
+    else { if(g.can&&!g.top) return; e.preventDefault(); go(-1); }
+  },{passive:false});
+
+  var ty=null;
+  window.addEventListener('touchstart',function(e){ ty=e.touches[0].clientY; },{passive:true});
+  window.addEventListener('touchend',function(e){
+    if(ty===null) return;
+    var dy=ty-e.changedTouches[0].clientY; ty=null;
+    if(Math.abs(dy)<45) return;
+    var g=edges();
+    if(dy>0){ if(g.can&&!g.bottom) return; go(1); }
+    else { if(g.can&&!g.top) return; go(-1); }
+  },{passive:true});
+
+  window.addEventListener('keydown',function(e){
+    var g=edges();
+    if(e.key==='ArrowDown'||e.key==='PageDown'||e.key===' '||e.key==='Spacebar'){ if(g.can&&!g.bottom)return; e.preventDefault(); go(1); }
+    else if(e.key==='ArrowUp'||e.key==='PageUp'){ if(g.can&&!g.top)return; e.preventDefault(); go(-1); }
+    else if(e.key==='Home'){ e.preventDefault(); if(!lock){lock=true;activate(0);release();} }
+    else if(e.key==='End'){ e.preventDefault(); if(!lock){lock=true;activate(n-1);release();} }
+  });
+
+  /* open at hash target, else first */
+  var start=0, h=(location.hash||'').replace('#',''); var hi=tokens.indexOf(h);
+  if(hi>=0) start=hi;
+  activate(start);
+})();
+</script>
+
+</body></html>
